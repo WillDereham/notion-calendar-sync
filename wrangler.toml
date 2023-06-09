@@ -1,6 +1,7 @@
 name = "notion-calendar-sync"
 main = "src/worker.ts"
 compatibility_date = "2023-06-08"
+send_metrics = false
 
 # # KV Namespace binding - For more information: https://developers.cloudflare.com/workers/runtime-apis/kv
 # [[kv_namespaces]]
@@ -29,11 +30,12 @@ compatibility_date = "2023-06-08"
 # name = "my-queue"
 # zone_id = "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
 
+[vars]
+ICALENDAR_PRODID_COMPANY = "Will Dereham"
+ICALENDAR_PRODID_PRODUCT = "notion-calendar-sync"
+
 # [env.production]
 # MY_VARIABLE = "production_value"
 
 # [env.staging]
 # MY_VARIABLE = "staging_value"
-
-# [env.shared]
-# SHARED_VARIABLE = "shared_value"

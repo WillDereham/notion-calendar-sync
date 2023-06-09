@@ -1,0 +1,2 @@
+SECRET_KEY=<secret key>
+NOTION_TOKEN=<notion internal integration secret (https://www.notion.so/my-integrations)>

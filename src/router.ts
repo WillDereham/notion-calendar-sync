@@ -1,22 +1,28 @@
-import { Router } from 'itty-router';
+import { Router } from 'itty-router'
+import { getCalendar } from './calendar'
 
-// now let's create a router (note the lack of "new")
-const router = Router();
+const UUID_REGEX = /^[0-9a-f]{8}[0-9a-f]{4}[1-5][0-9a-f]{3}[89ab][0-9a-f]{3}[0-9a-f]{12}$/i
 
-// GET collection index
-router.get('/api/todos', () => new Response('Todos Index!'));
+const router = Router()
+
+export function notFound() {
+	return new Response('404 Not Found', { status: 404 })
+}
 
 // GET item
-router.get('/api/todos/:id', ({ params }) => new Response(`Todo #${params.id}`));
-
-// POST to the collection (we'll use async here)
-router.post('/api/todos', async (request) => {
-	const content = await request.json();
-
-	return new Response('Creating Todo: ' + JSON.stringify(content));
-});
+router.get(
+	'/calendar/:databaseId.ics',
+	async ({ params }, { NOTION_TOKEN, ICALENDAR_PRODID_COMPANY, ICALENDAR_PRODID_PRODUCT }) => {
+		const { databaseId } = params
+		if (!UUID_REGEX.test(databaseId)) return notFound()
+		return await getCalendar(databaseId, NOTION_TOKEN, {
+			company: ICALENDAR_PRODID_COMPANY,
+			product: ICALENDAR_PRODID_PRODUCT,
+		})
+	},
+)
 
 // 404 for everything else
-router.all('*', () => new Response('Not Found.', { status: 404 }));
+router.all('*', notFound)
 
-export default router;
+export default router
