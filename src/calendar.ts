@@ -15,15 +15,14 @@ export async function getCalendar(
 	// TODO: Does not take into account timezone property of notion date
 	for (let { id, url, title, date, location } of events) {
 		const allDay = date.start.length === 10
+		const startDate = new Date(date.start)
 		const endDate = date.end && new Date(date.end)
-		if (allDay && endDate) {
-			endDate.setDate(endDate.getDate() + 1)
-		}
+
 		cal.createEvent({
 			id,
 			summary: title,
-			start: date.start,
-			end: endDate,
+			start: startDate,
+			end: getEndDate({ start: startDate, end: endDate, allDay }),
 			allDay,
 			url,
 			location,
@@ -32,6 +31,24 @@ export async function getCalendar(
 	return new Response(cal.toString(), {
 		headers: { 'Content-Type': 'text/calendar' },
 	})
+}
+
+function getEndDate({ start, end, allDay }): Date | undefined {
+	if (end) {
+		const endDate = new Date(end)
+		if (allDay) {
+			endDate.setDate(endDate.getDate() + 1)
+		}
+		return endDate
+	}
+	if (allDay) {
+		return undefined
+	}
+
+	// Make events 1 hour long if no end date is specified
+	const endDate = new Date(start)
+	endDate.setUTCHours(endDate.getUTCHours() + 1)
+	return endDate
 }
 
 async function getNotionData(databaseId: string, notionToken: string) {
