@@ -35,7 +35,7 @@ export async function getNotionData(databaseId: string, notionToken: string) {
         url,
         title: properties.Name.title[0].plain_text,
         date: { start, end },
-        location: location.select?.name || location.rich_text?.[0].plain_text || null,
+        location: location && (location.select?.name || location.rich_text?.[0].plain_text || null),
       }
     })
 
