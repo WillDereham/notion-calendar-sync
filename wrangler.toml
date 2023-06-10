@@ -34,6 +34,9 @@ send_metrics = false
 ICALENDAR_PRODID_COMPANY = "Will Dereham"
 ICALENDAR_PRODID_PRODUCT = "notion-calendar-sync"
 
+# Set to 0 to not add an end date if not specified in notion
+DEFAULT_EVENT_DURATION = 60
+
 # [env.production]
 # MY_VARIABLE = "production_value"
 

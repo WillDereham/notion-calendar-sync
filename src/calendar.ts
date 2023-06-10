@@ -2,7 +2,11 @@ import ical, { ICalCalendarProdIdData } from 'ical-generator'
 import { notFound } from './router'
 import { getNotionData } from './notion'
 
-export async function getCalendar(notionData, prodId: ICalCalendarProdIdData): string {
+export async function getCalendar(
+  notionData,
+  prodId: ICalCalendarProdIdData,
+  defaultEventDuration: number,
+): string {
   const { databaseTitle, events } = notionData
   const cal = ical({ name: databaseTitle, prodId })
   // TODO: Does not take into account timezone property of notion date
@@ -15,7 +19,7 @@ export async function getCalendar(notionData, prodId: ICalCalendarProdIdData): s
       id,
       summary: title,
       start: startDate,
-      end: getEndDate({ start: startDate, end: endDate, allDay }),
+      end: getEndDate(startDate, endDate, allDay, defaultEventDuration),
       allDay,
       url,
       location,
@@ -24,23 +28,26 @@ export async function getCalendar(notionData, prodId: ICalCalendarProdIdData): s
   return cal.toString()
 }
 
-function addHours(date: Date, hours: number): Date {
-  const newDate = new Date(date)
-  newDate.setUTCHours(newDate.getUTCHours() + 1)
-  return newDate
-}
-
-function addDays(date: Date, hours: number): Date {
-  const newDate = new Date(date)
-  newDate.setDate(newDate.getDate() + 1)
-  return newDate
-}
-
-function getEndDate({ start, end, allDay }): Date | undefined {
+function getEndDate(
+  start: Date,
+  end: Date,
+  allDay: boolean,
+  defaultDuration: number,
+): Date | undefined {
   // If it is all day, and an end is specified, add a day, because it is exclusive.
   // Otherwise do not specify an end date.
   if (allDay) return end ? addDays(end, 1) : undefined
 
-  // Make events 1 hour long if no end date is specified
-  return end ?? addHours(start, 1)
+  // Add a default duration of no end is specified
+  return end ?? (defaultDuration ? addMinutes(start, defaultDuration) : undefined)
+}
+
+function addMinutes(date: Date, minutes: number): Date {
+  return new Date(date.getTime() + minutes * 60000)
+}
+
+function addDays(date: Date, days: number): Date {
+  const newDate = new Date(date)
+  newDate.setDate(newDate.getDate() + days)
+  return newDate
 }

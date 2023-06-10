@@ -13,17 +13,24 @@ export function notFound() {
 // GET item
 router.get(
   '/calendar/:databaseId.ics',
-  async ({ params }, { NOTION_TOKEN, ICALENDAR_PRODID_COMPANY, ICALENDAR_PRODID_PRODUCT }) => {
+  async (
+    { params },
+    { NOTION_TOKEN, ICALENDAR_PRODID_COMPANY, ICALENDAR_PRODID_PRODUCT, DEFAULT_EVENT_DURATION },
+  ) => {
     const { databaseId } = params
     if (!UUID_REGEX.test(databaseId)) return notFound()
 
     const notionData = await getNotionData(databaseId, NOTION_TOKEN)
     if (notionData === null) return notFound()
 
-    const calendarString = await getCalendar(notionData, {
-      company: ICALENDAR_PRODID_COMPANY,
-      product: ICALENDAR_PRODID_PRODUCT,
-    })
+    const calendarString = await getCalendar(
+      notionData,
+      {
+        company: ICALENDAR_PRODID_COMPANY,
+        product: ICALENDAR_PRODID_PRODUCT,
+      },
+      DEFAULT_EVENT_DURATION,
+    )
     return new Response(calendarString, {
       headers: {
         'Content-Type': 'text/calendar',
