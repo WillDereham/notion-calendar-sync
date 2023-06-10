@@ -1,7 +1,8 @@
 import { Router } from 'itty-router'
 import { getCalendar } from './calendar'
+import { getNotionData } from './notion'
 
-const UUID_REGEX = /^[0-9a-f]{8}[0-9a-f]{4}[1-5][0-9a-f]{3}[89ab][0-9a-f]{3}[0-9a-f]{12}$/i
+const UUID_REGEX = /^[0-9a-f]{12}[1-5][0-9a-f]{3}[89ab][0-9a-f]{15}$/i
 
 const router = Router()
 
@@ -15,9 +16,21 @@ router.get(
   async ({ params }, { NOTION_TOKEN, ICALENDAR_PRODID_COMPANY, ICALENDAR_PRODID_PRODUCT }) => {
     const { databaseId } = params
     if (!UUID_REGEX.test(databaseId)) return notFound()
-    return await getCalendar(databaseId, NOTION_TOKEN, {
+
+    const notionData = await getNotionData(databaseId, NOTION_TOKEN)
+    if (notionData === null) return notFound()
+
+    const calendarString = await getCalendar(notionData, {
       company: ICALENDAR_PRODID_COMPANY,
       product: ICALENDAR_PRODID_PRODUCT,
+    })
+    return new Response(calendarString, {
+      headers: {
+        'Content-Type': 'text/calendar',
+        'Content-Disposition': `attachment; filename="${encodeURIComponent(
+          notionData.databaseTitle,
+        )}"`,
+      },
     })
   },
 )
