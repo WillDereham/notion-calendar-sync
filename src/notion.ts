@@ -27,17 +27,20 @@ export async function getNotionData(databaseId: string, notionToken: string) {
       entries.push(...response.results)
     } while (start_cursor)
     // const events = entries
-    const events = entries.map(({ id, url, properties }) => {
-      const location = properties[propertyNames.location]
-      const { start, end } = properties[propertyNames.date].date
-      return {
-        id,
-        url,
-        title: properties.Name.title[0].plain_text,
-        date: { start, end },
-        location: location && (location.select?.name || location.rich_text?.[0].plain_text || null),
-      }
-    })
+    const events = entries
+      .filter(({ properties }) => properties[propertyNames.date].date) // Remove entries without dates
+      .map(({ id, url, properties }) => {
+        const location = properties[propertyNames.location]
+        const { start, end } = properties[propertyNames.date].date
+        return {
+          id,
+          url,
+          title: properties.Name.title[0].plain_text,
+          date: { start, end },
+          location:
+            location && (location.select?.name || location.rich_text?.[0].plain_text || null),
+        }
+      })
 
     return { databaseTitle, events }
   } catch (error) {
