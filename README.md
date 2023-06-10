@@ -11,10 +11,11 @@ Cloudflare worker to generate a calendar subscription for a Notion database.
 
 ## Instructions
 
-Clone the repository
+Clone the repository and install dependencies.
 
 ```
 git clone git@github.com:WillDereham/notion-calendar-sync.git
+yarn install
 ```
 
 Deploy with wranglers.
