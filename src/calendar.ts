@@ -29,7 +29,10 @@ export async function getCalendar(
     })
   }
   return new Response(cal.toString(), {
-    headers: { 'Content-Type': 'text/calendar' },
+    headers: {
+      'Content-Type': 'text/calendar',
+      'Content-Disposition': `attachment; filename="${encodeURIComponent(databaseTitle)}"`,
+    },
   })
 }
 
